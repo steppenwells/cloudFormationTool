@@ -1,0 +1,16 @@
+@(instanceTypes: List[String])
+
+<div class="row">
+    <h2>
+        And how many of those do youy want?
+    </h2>
+    <form method="post">
+        number of instances: <select name="howMany" >
+            @for(c <- 1 to 10) {
+                <option value="@c">@c</option>
+        }
+        </select>
+
+        <button type="submit" class="btn btn-default">Go</button>
+    </form>
+</div>

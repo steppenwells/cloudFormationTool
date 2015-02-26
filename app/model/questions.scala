@@ -53,6 +53,13 @@ class InstanceRecipeQuestion extends Question {
   }
 }
 
+case class InstanceDetails(
+  val appName: Option[String],
+  val instanceType: Option[String] = None,
+  val image: Option[String] = None,
+  val number: Option[Int] = None
+)
+
 class InstanceAppName extends Question {
 
   override def renderQuestion: HtmlFormat.Appendable = views.html.Application.Questions.instanceAppName()
@@ -61,9 +68,35 @@ class InstanceAppName extends Question {
     val name = submission("name").head
     Logger.info(s"app name = $name")
 
-    context.currentQuestion = new DisplayValueQuestion(name)
+    context.currentQuestion = new InstanceTypeDetails(new InstanceDetails(appName = Some(name)))
   }
 }
+
+class InstanceTypeDetails(instanceDetails: InstanceDetails) extends Question {
+  override def renderQuestion: HtmlFormat.Appendable = views.html.Application.Questions.instanceType(InstanceTypes.list)
+
+  override def processAnswer(context: Context, submission: Map[String, Seq[String]]) {
+    val instanceType = submission("instanceType").headOption
+    val ami = submission("ami").headOption
+
+    context.currentQuestion = new ScaleGroupCountQuestion(
+      instanceDetails.copy(instanceType = instanceType, image = ami)
+    )
+  }
+}
+
+class ScaleGroupCountQuestion(instanceDetails: InstanceDetails) extends Question {
+  override def renderQuestion: HtmlFormat.Appendable = views.html.Application.Questions.scaleGroup(InstanceTypes.list)
+
+  override def processAnswer(context: Context, submission: Map[String, Seq[String]]) {
+    val c = submission("howMany").headOption.map(_.toInt)
+
+    context.currentQuestion = new DisplayValueQuestion(
+      instanceDetails.copy(number = c).toString
+    )
+  }
+}
+
 
 class DisplayValueQuestion(value: String) extends Question {
 

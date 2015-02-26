@@ -1,0 +1,17 @@
+@(instanceTypes: List[String])
+
+<div class="row">
+    <h2>
+        And on what kind of instance should this run on?
+    </h2>
+    <form method="post">
+        instance type: <select name="instanceType" >
+            @for(t <- instanceTypes) {
+                <option value="@t">@t</option>
+        }
+        </select>
+
+        image name: <input type="text" name="ami" />
+        <button type="submit" class="btn btn-default">Go</button>
+    </form>
+</div>
