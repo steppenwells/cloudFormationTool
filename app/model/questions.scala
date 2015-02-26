@@ -57,7 +57,8 @@ case class InstanceDetails(
   val appName: Option[String],
   val instanceType: Option[String] = None,
   val image: Option[String] = None,
-  val number: Option[Int] = None
+  val number: Option[Int] = None,
+  val lbType: Option[String] = None
 )
 
 class InstanceAppName extends Question {
@@ -91,9 +92,23 @@ class ScaleGroupCountQuestion(instanceDetails: InstanceDetails) extends Question
   override def processAnswer(context: Context, submission: Map[String, Seq[String]]) {
     val c = submission("howMany").headOption.map(_.toInt)
 
-    context.currentQuestion = new DisplayValueQuestion(
-      instanceDetails.copy(number = c).toString
+    context.currentQuestion = new AddLoadBalencerQuestion(
+      instanceDetails.copy(number = c)
     )
+  }
+}
+
+class AddLoadBalencerQuestion(instanceDetails: InstanceDetails) extends Question {
+  override def renderQuestion: HtmlFormat.Appendable = views.html.Application.Questions.loadBalancer()
+
+  override def processAnswer(context: Context, submission: Map[String, Seq[String]]) {
+    val c = submission("lb").headOption
+
+
+    context.currentQuestion = c match {
+      case Some("no") => new DisplayValueQuestion(instanceDetails.toString)
+      case s => new DisplayValueQuestion(instanceDetails.copy(lbType = s).toString)
+    }
   }
 }
 
