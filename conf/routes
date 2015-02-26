@@ -1,5 +1,8 @@
 
 GET     /start                              controllers.CliffyController.start
+GET     /begin                              controllers.CliffyController.begin
+GET     /configure/:context                 controllers.CliffyController.renderQuestion(context: Long)
+POST    /configure/:context                 controllers.CliffyController.processQuestion(context: Long)
 
 # Management
 GET     /management/healthcheck/arse             controllers.Management.healthCheck

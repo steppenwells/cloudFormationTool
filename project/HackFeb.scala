@@ -20,10 +20,13 @@ object HackFebBuild extends Build {
       incOptions := incOptions.value.withNameHashing(nameHashing = true)
     )
 
+  val awsDependencies = Seq("com.amazonaws" % "aws-java-sdk" % "1.9.4")
+
   val root = Project("hack-feb", file(".")).enablePlugins(play.PlayScala).enablePlugins(SbtWeb)
     .settings(libraryDependencies += ws)
     .settings(commonSettings ++ playArtifactDistSettings ++ playArtifactSettings: _*)
     .settings(magentaPackageName := "rights-feeder")
+    .settings(libraryDependencies ++= awsDependencies)
 
   def playArtifactSettings = Seq(
     ivyXML :=
