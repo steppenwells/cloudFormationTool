@@ -21,7 +21,15 @@ class AWSAccount(val name: String, key: String, secret: String) {
   lazy val CloudWatch = region.createClient(classOf[AmazonCloudWatchClient], credentialsProvider, null)
 }
 
+case class AccountDefaults(
+  stack: String,
+  distBucket: String,
+  key: String
+)
+
 object AWSAccounts {
+
+  val composerAccountDefaults = AccountDefaults("composer", "composer-dist", "composer-team")
 
   val config = play.api.Play.configuration
 
