@@ -1,2 +1,6 @@
+
+GET     /start                              controllers.CliffyController.start
+
 # Management
-GET     /management/healthcheck             controllers.Management.healthCheck
+GET     /management/healthcheck/arse             controllers.Management.healthCheck
+
