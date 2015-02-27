@@ -59,7 +59,17 @@ case class InstanceDetails(
   val image: Option[String] = None,
   val number: Option[Int] = None,
   val lbType: Option[String] = None
-)
+) {
+
+  def resourceAppName = {
+    val parts = appName.get.split("-")
+    parts.map(capitaliseFirstChar _).mkString("")
+  }
+
+  def capitaliseFirstChar(s: String) = {
+    s.head.toUpper + s.tail
+  }
+}
 
 class InstanceAppName extends Question {
 
