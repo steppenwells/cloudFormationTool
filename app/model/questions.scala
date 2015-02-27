@@ -117,7 +117,23 @@ class AddLoadBalencerQuestion(instanceDetails: InstanceDetails) extends Question
 
     context.currentQuestion = c match {
       case Some("no") => new DisplayValueQuestion(instanceDetails.toString)
-      case s => new DisplayValueQuestion(instanceDetails.copy(lbType = s).toString)
+      case s => {
+        val id = instanceDetails.copy(lbType = s)
+
+        val completedResources = List(
+          new Role(id),
+          new InstanceProfile(id),
+          new SSHSecurityGroup(),
+          new AppServerSecurityGroup(id),
+          new LoadBalancerSecurityGroup(id),
+          new LoadBalancer(id),
+          new AutoScalingGroup(id, context.account.defaults),
+          new LaunchConfig(id, context.account.defaults)
+        )
+
+        context.resources = context.resources ++ completedResources
+        new DisplayValueQuestion(context.resources.map(_.asCfn).mkString(",\n"))
+      }
     }
   }
 }

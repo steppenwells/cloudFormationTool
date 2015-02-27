@@ -24,7 +24,7 @@ class Context () {
   var account: AWSAccount = null
   val template: String = ""
   var currentQuestion: Question = new ChooseAccountQuestion
-
+  var resources: List[Resource] = Nil
 }
 
 
