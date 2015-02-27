@@ -2,7 +2,17 @@
 
 @main("CLIFFY") {
 <div class="container">
-    @context.currentQuestion.renderQuestion
+    <div class="row">
+        <div class="col-md-8">@context.currentQuestion.renderQuestion</div>
+        <div class="col-md-4 well">
+            <h3>Created resources</h3>
+            <ul>
+                @for(r <-context.resources) {
+                    <li>@r.describe</li>
+                }
+            </ul>
+        </div>
+    </div>
 </div>
 
 }
