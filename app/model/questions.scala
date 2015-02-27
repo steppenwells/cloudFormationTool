@@ -2,6 +2,7 @@ package model
 
 import play.api.Logger
 import play.twirl.api.HtmlFormat
+import scala.collection.JavaConverters._
 
 trait Question {
   def renderQuestion: HtmlFormat.Appendable
@@ -178,9 +179,36 @@ class InstanceResourceMenu(instanceDetails: InstanceDetails) extends Question {
 }
 
 class BucketQuestion(instanceDetails: InstanceDetails, context: Context) extends Question {
-  override def renderQuestion: HtmlFormat.Appendable = ???
 
-  override def processAnswer(context: Context, submission: Map[String, Seq[String]]): Unit = ???
+  val existingBuckets = context.account.s3.listBuckets().asScala.map(_.getName).toList
+  val createdBuckets = context.resources.filter(_.resourceType == "bucket").map(_.asInstanceOf[BucketResource].bucketName)
+
+  override def renderQuestion: HtmlFormat.Appendable = views.html.Application.Questions.bucketQuestion(existingBuckets, createdBuckets)
+
+  override def processAnswer(context: Context, submission: Map[String, Seq[String]]) {
+    val existing = submission.get("existing")
+    val created = submission.get("created")
+    val create = submission.get("create")
+
+    existing.map { bucketName =>
+      val policy = new BucketAccessPolicy(instanceDetails, bucketName.head)
+      context.resources = context.resources ++ List(policy)
+      context.currentQuestion = new CreatedInstanceWhatNext(instanceDetails)
+    }
+    created.map{ bucketName =>
+      val policy = new CreatedBucketAccessPolicy(instanceDetails, bucketName.head)
+      context.resources = context.resources ++ List(policy)
+      context.currentQuestion =new CreatedInstanceWhatNext(instanceDetails)
+    }
+
+    create.map{ _ =>
+      val bucketName = submission("bucketName").head
+      val policy = new CreatedBucketAccessPolicy(instanceDetails, bucketName)
+      context.resources = context.resources ++ List(new BucketResource(bucketName), policy)
+      context.currentQuestion = new CreatedInstanceWhatNext(instanceDetails)
+    }
+
+  }
 }
 
 class DisplayCfnQuestion(context: Context) extends Question {

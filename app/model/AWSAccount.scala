@@ -5,6 +5,7 @@ import com.amazonaws.internal.StaticCredentialsProvider
 import com.amazonaws.regions.{Regions, Region}
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
+import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.sqs.AmazonSQSClient
 import play.api.Play.current
 
@@ -15,6 +16,8 @@ class AWSAccount(val name: String, key: String, secret: String, val defaults: Ac
   lazy val credentialsProvider = new StaticCredentialsProvider(new BasicAWSCredentials(key, secret))
 
   lazy val SQS = region.createClient(classOf[AmazonSQSClient], credentialsProvider, null)
+
+  lazy val s3 = region.createClient(classOf[AmazonS3Client], credentialsProvider, null)
 
   lazy val DynamoDB = region.createClient(classOf[AmazonDynamoDBClient], credentialsProvider, null)
 

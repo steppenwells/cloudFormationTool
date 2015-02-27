@@ -1,0 +1,20 @@
+@(existingBuckets: List[String], resourceBuckets: List[String])
+<div class="row">
+    <h2>
+        Which bucket do you want to access?
+    </h2>
+    <form method="post">
+        <h3>Available buckets</h3>
+        @for(b <- existingBuckets) {
+            <button type="submit" class="btn btn-default" name="existing" value="@b">@b</button><br/>
+        }
+        <h3>Created by this script</h3>
+        @for(b <- resourceBuckets) {
+            <button type="submit" class="btn btn-default" name="created" value="@b">@b</button><br/>
+        }
+        <h3>Create a new bucket</h3>
+        name: <input type="text" name="bucketName" />
+        <button type="submit" class="btn btn-default" name="create" value="create">Create</button><br/>
+
+    </form>
+</div>

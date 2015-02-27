@@ -351,3 +351,107 @@ class CloudWatchPolicy(instanceDetails: InstanceDetails) extends Resource {
   override def resourceType: String = "policy"
 }
 
+class BucketAccessPolicy(instanceDetails: InstanceDetails, bucketName: String) extends Resource {
+
+  def resourceBucketName = {
+    val parts = bucketName.split("-")
+    parts.map(capitaliseFirstChar _).mkString("") + "Bucket"
+  }
+
+  def capitaliseFirstChar(s: String) = {
+    s.head.toUpper + s.tail
+  }
+
+  override def asCfn: String = s"""
+    "${instanceDetails.resourceAppName}${resourceBucketName}Policy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "${instanceDetails.resourceAppName}${resourceBucketName}Policy",
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", s3:ListObject],
+              "Resource": ["arn:aws:s3:::$bucketName/*"]
+            }
+          ]
+        },
+      "Roles": [{"Ref": "${instanceDetails.resourceAppName}Role"}]
+    }"""
+
+  override def describe: String = s"access policy ${instanceDetails.resourceAppName}${resourceBucketName}Policy"
+
+  override def resourceType: String = "policy"
+}
+
+class CreatedBucketAccessPolicy(instanceDetails: InstanceDetails, bucketName: String) extends Resource {
+
+  def resourceBucketName = {
+    val parts = bucketName.split("-")
+    parts.map(capitaliseFirstChar _).mkString("") + "Bucket"
+  }
+
+  def capitaliseFirstChar(s: String) = {
+    s.head.toUpper + s.tail
+  }
+
+  override def asCfn: String = s"""
+    "${instanceDetails.resourceAppName}${resourceBucketName}Policy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "${instanceDetails.resourceAppName}${resourceBucketName}Policy",
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", s3:ListObject],
+              "Resource": [{ "Ref": "${resourceBucketName}" }]
+            }
+          ]
+        },
+      "Roles": [{"Ref": "${instanceDetails.resourceAppName}Role"}]
+    }"""
+
+  override def describe: String = s"access policy ${instanceDetails.resourceAppName}${resourceBucketName}Policy"
+
+  override def resourceType: String = "policy"
+}
+
+class BucketResource(val bucketName: String) extends Resource {
+
+  def resourceBucketName = {
+    val parts = bucketName.split("-")
+    parts.map(capitaliseFirstChar _).mkString("") + "Bucket"
+  }
+
+  def capitaliseFirstChar(s: String) = {
+    s.head.toUpper + s.tail
+  }
+
+  override def asCfn: String = s"""
+      "$resourceBucketName" : {
+          "Type" : "AWS::S3::Bucket",
+          "Properties" : {
+              "AccessControl" : "Private",
+              "BucketName" :   {
+                  "Fn::Join": [
+                      "",
+                      [
+                          "$bucketName-",
+                          { "Fn::FindInMap" :
+                            [ "EnvironmentMap",
+                              { "Ref" : "Stage" },
+                              "lowercase"]
+                          }
+                      ]
+                  ]
+              }
+          },
+          "DeletionPolicy" : "Retain"
+      }"""
+
+  override def describe: String = s"bucket: $resourceBucketName"
+
+  override def resourceType: String = "bucket"
+}
+
