@@ -149,7 +149,7 @@ class CreatedInstanceWhatNext(instanceDetails: InstanceDetails) extends Question
     context.currentQuestion = thing.head match {
       case "instance" => new InstanceRecipeQuestion
       case "resources" => new InstanceResourceMenu(instanceDetails)
-      case "done" => new DisplayCfnQuestion(context)
+      case "done" => new FinaliseQuestion()
     }
   }
 }
@@ -211,13 +211,23 @@ class BucketQuestion(instanceDetails: InstanceDetails, context: Context) extends
   }
 }
 
-class DisplayCfnQuestion(context: Context) extends Question {
+class FinaliseQuestion() extends Question {
+
+  override def renderQuestion: HtmlFormat.Appendable = views.html.Application.Questions.finalise()
+
+  override def processAnswer(context: Context, submission: Map[String, Seq[String]]) {
+    val name = submission("name").head
+    context.currentQuestion = new DisplayCfnQuestion(name, context)
+  }
+}
+
+class DisplayCfnQuestion(name: String, context: Context) extends Question {
 
   val cfn =
     s"""
 {
     "AWSTemplateFormatVersion":"2010-09-09",
-    "Description":"composer|latency",
+    "Description":"$name",
     "Parameters":{
         "KeyName":{
             "Description":"The EC2 Key Pair to allow SSH access to the instance",

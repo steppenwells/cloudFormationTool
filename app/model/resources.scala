@@ -35,7 +35,7 @@ class Role(instanceDetails: InstanceDetails) extends Resource {
 }
 
 class InstanceProfile(instanceDetails: InstanceDetails) extends Resource {
-  override def describe: String = s"instance role: ${instanceDetails.resourceAppName}Role"
+  override def describe: String = s"instance profile: ${instanceDetails.resourceAppName}InstanceProfile"
 
   override def asCfn: String = s"""
                                  "${instanceDetails.resourceAppName}InstanceProfile": {
