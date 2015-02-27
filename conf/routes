@@ -1,4 +1,6 @@
 
+GET     /env                                controllers.CliffyController.env
+GET     /cloud                              controllers.CliffyController.cloud
 GET     /start                              controllers.CliffyController.start
 GET     /begin                              controllers.CliffyController.begin
 GET     /configure/:context                 controllers.CliffyController.renderQuestion(context: Long)

@@ -31,4 +31,14 @@ object CliffyController extends Controller {
     Redirect(s"/configure/$contextId")
   }
 
+  def env = Action {
+
+    Ok(views.html.Application.env())
+  }
+
+  def cloud = Action {
+
+    Ok(views.html.Application.cloud())
+  }
+
 }
