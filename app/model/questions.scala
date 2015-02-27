@@ -132,12 +132,46 @@ class AddLoadBalencerQuestion(instanceDetails: InstanceDetails) extends Question
         )
 
         context.resources = context.resources ++ completedResources
-        new DisplayValueQuestion(context.resources.map(_.asCfn).mkString(",\n"))
+        new DisplayCfnQuestion(context)
       }
     }
   }
 }
 
+class DisplayCfnQuestion(context: Context) extends Question {
+
+  val cfn =
+    s"""
+{
+    "AWSTemplateFormatVersion":"2010-09-09",
+    "Description":"composer|latency",
+    "Parameters":{
+        "KeyName":{
+            "Description":"The EC2 Key Pair to allow SSH access to the instance",
+            "Type":"String",
+            "Default":"${context.account.defaults.key}"
+        },
+        "Stage":{
+            "Description":"Environment name",
+            "Type":"String",
+            "AllowedValues":[ "PROD", "CODE", "QA", "TEST" ],
+            "Default": "PROD"
+        },
+        "GuardianIP": {
+            "Description": "Ip range for the office",
+            "Type": "String",
+            "Default": "77.91.248.0/21"
+        }
+    },
+
+    "Resources":{
+    ${context.resources.map(_.asCfn).mkString(",\n")}}
+}"""
+
+  override def renderQuestion: HtmlFormat.Appendable = views.html.Application.Questions.displayCfn(cfn)
+
+  override def processAnswer(context: Context, submission: Map[String, Seq[String]]): Unit = {}
+}
 
 class DisplayValueQuestion(value: String) extends Question {
 

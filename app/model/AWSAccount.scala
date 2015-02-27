@@ -9,7 +9,7 @@ import com.amazonaws.services.sqs.AmazonSQSClient
 import play.api.Play.current
 
 
-class AWSAccount(val name: String, key: String, secret: String) {
+class AWSAccount(val name: String, key: String, secret: String, val defaults: AccountDefaults) {
   lazy val region = Region getRegion Regions.EU_WEST_1
 
   lazy val credentialsProvider = new StaticCredentialsProvider(new BasicAWSCredentials(key, secret))
@@ -34,8 +34,8 @@ object AWSAccounts {
   val config = play.api.Play.configuration
 
   val accounts = List(
-    new AWSAccount("composer", config.getString("composer.key").get, config.getString("composer.secret").get),
-    new AWSAccount("workflow", config.getString("workflow.key").get, config.getString("workflow.secret").get)
+    new AWSAccount("composer", config.getString("composer.key").get, config.getString("composer.secret").get, composerAccountDefaults),
+    new AWSAccount("workflow", config.getString("workflow.key").get, config.getString("workflow.secret").get, null)
   )
 
   def apply(accountName: String): AWSAccount = {
