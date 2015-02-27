@@ -132,10 +132,55 @@ class AddLoadBalencerQuestion(instanceDetails: InstanceDetails) extends Question
         )
 
         context.resources = context.resources ++ completedResources
-        new DisplayCfnQuestion(context)
+        new CreatedInstanceWhatNext(id)
       }
     }
   }
+}
+
+class CreatedInstanceWhatNext(instanceDetails: InstanceDetails) extends Question {
+  override def renderQuestion: HtmlFormat.Appendable = views.html.Application.Questions.postInstanceCreate()
+
+  override def processAnswer(context: Context, submission: Map[String, Seq[String]]) {
+    val thing = submission("thing")
+    Logger.info(s"configuring ${thing.head}")
+
+    context.currentQuestion = thing.head match {
+      case "instance" => new InstanceRecipeQuestion
+      case "resources" => new InstanceResourceMenu(instanceDetails)
+      case "done" => new DisplayCfnQuestion(context)
+    }
+  }
+}
+
+class InstanceResourceMenu(instanceDetails: InstanceDetails) extends Question {
+  override def renderQuestion: HtmlFormat.Appendable = views.html.Application.Questions.resourceMenu()
+
+  override def processAnswer(context: Context, submission: Map[String, Seq[String]]) {
+    val thing = submission("thing")
+    Logger.info(s"configuring ${thing.head}")
+
+    context.currentQuestion = thing.head match {
+      case "cloudwatch" => {
+        val policy = new CloudWatchPolicy(instanceDetails)
+        context.resources = context.resources ++ List(policy)
+        new CreatedInstanceWhatNext(instanceDetails)
+      }
+      case "instancetags" => {
+        val policy = new EC2DescribePolicy(instanceDetails)
+        context.resources = context.resources ++ List(policy)
+        new CreatedInstanceWhatNext(instanceDetails)
+      }
+      case "s3" => new BucketQuestion(instanceDetails, context)
+      case _ => new CreatedInstanceWhatNext(instanceDetails)
+    }
+  }
+}
+
+class BucketQuestion(instanceDetails: InstanceDetails, context: Context) extends Question {
+  override def renderQuestion: HtmlFormat.Appendable = ???
+
+  override def processAnswer(context: Context, submission: Map[String, Seq[String]]): Unit = ???
 }
 
 class DisplayCfnQuestion(context: Context) extends Question {

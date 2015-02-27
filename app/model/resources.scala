@@ -303,3 +303,51 @@ class LaunchConfig(instanceDetails: InstanceDetails, accountDefaults: AccountDef
   override def resourceType: String = "launchConfig"
 }
 
+class EC2DescribePolicy(instanceDetails: InstanceDetails) extends Resource {
+  override def asCfn: String = s"""
+        "${instanceDetails.resourceAppName}DescribeEC2Policy" : {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "${instanceDetails.resourceAppName}DescribeEC2Policy",
+                "PolicyDocument": {
+                    "Statement": [ {
+                        "Action": ["EC2:Describe*"],
+                        "Effect": "Allow",
+                        "Resource":"*"
+                    }]
+                },
+                "Roles": [ { "Ref": "${instanceDetails.resourceAppName}Role" } ]
+            }
+        }
+        """
+
+  override def describe: String = s"access policy: ${instanceDetails.resourceAppName}DescribeEC2Policy"
+
+  override def resourceType: String = "policy"
+}
+
+class CloudWatchPolicy(instanceDetails: InstanceDetails) extends Resource {
+  override def asCfn: String = s"""
+        "${instanceDetails.resourceAppName}CloudwatchPolicy" : {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "${instanceDetails.resourceAppName}CloudwatchPolicy",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [ "cloudwatch:*" ],
+                            "Resource": "*"
+                        }
+                    ]
+                },
+                "Roles": [ { "Ref": "${instanceDetails.resourceAppName}Role" } ]
+            }
+        }
+        """
+
+  override def describe: String = s"access policy: ${instanceDetails.resourceAppName}CloudwatchPolicy"
+
+  override def resourceType: String = "policy"
+}
+
